@@ -1,4 +1,4 @@
-module GameJam
+module Tri-Campus-Game-Jam-2025
 
 go 1.24.2
 
