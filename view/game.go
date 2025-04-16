@@ -18,7 +18,7 @@ const (
 	ScreenHeight = 700
 	MiniSize     = 400
 	MiniPosX     = 200
-	MiniPosY     = 300
+	MiniPosY     = 200
 )
 
 type Game struct {
@@ -70,7 +70,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.currMini != 0 && g.miniGameMap[g.currMini].IsActive() {
 		screen.DrawImage(g.miniGameMap[g.currMini].GetMiniImage(), op2)
 	} else {
-		screen.Fill(color.Black)
+		temp_screen := ebiten.NewImage(MiniSize, MiniSize)
+		temp_screen.Fill(color.Black)
+		screen.DrawImage(temp_screen, op2)
 	}
 }
 
