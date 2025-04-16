@@ -1,59 +1,57 @@
 package view
 
 import (
-	"image/color"
-	"time"
+	"image"
+	"os"
+
+	_ "image/png"
+
+	"Tri-Campus-Game-Jam-2025/model"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
+
+type MiniGame = model.MiniGame
 
 const (
 	ScreenWidth  = 800
 	ScreenHeight = 700
-	miniSize     = 400
+	MiniSize     = 400
 )
 
 type Game struct {
-	miniImage   *ebiten.Image
-	miniGameMap map[rune]*MiniGame
-	startTime   time.Time
-}
-
-type MiniGame struct {
-	alarmPos  float32
-	miniImage *ebiten.Image
+	currMini    rune
+	miniGameMap map[rune]MiniGame
+	backImage   *ebiten.Image
 }
 
 func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		g.miniImage = g.miniGameMap['w'].miniImage
+		g.currMini = 'w'
 	} else if ebiten.IsKeyPressed(ebiten.KeyA) {
-		g.miniImage = g.miniGameMap['a'].miniImage
+		g.currMini = 'a'
 	} else if ebiten.IsKeyPressed(ebiten.KeyS) {
-		g.miniImage = g.miniGameMap['s'].miniImage
+		g.currMini = 's'
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
-		g.miniImage = g.miniGameMap['d'].miniImage
-	} else if g.miniImage == nil {
-		g.miniImage = ebiten.NewImage(miniSize, miniSize)
-		g.miniImage.Fill(color.RGBA{0, 0, 0, 255})
+		g.currMini = 'd'
 	}
-	// need to do behavoir for each of the images/minigames
+	g.miniGameMap[g.currMini].UpdateGame()
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	// draw backgroud
-	screen.Fill(color.RGBA{0x80, 0xa0, 0xc0, 0xff}) // change this to a custom image
+	op := &ebiten.DrawImageOptions{}
+	bounds := g.backImage.Bounds()
+	w, h := bounds.Dx(), bounds.Dy()
+	op.GeoM.Scale(float64(ScreenWidth)/float64(w), float64(ScreenHeight)/float64(h))
+	screen.DrawImage(g.backImage, op)
 	// draw game alerts
 	for _, miniGame := range g.miniGameMap {
-		vector.DrawFilledRect(screen, miniGame.alarmPos, 50, 75, 75, color.RGBA{0, 255, 0, 255}, false)
+		miniGame.DisplayAlert(screen)
 	}
-	// draw mini image
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64((ScreenWidth-miniSize)/2), float64(ScreenHeight-miniSize)-100)
-	screen.DrawImage(g.miniImage, op)
-
+	// draw mini game screen
+	g.miniGameMap[g.currMini].DisplayScreen(screen, float64(ScreenWidth-MiniSize)/2, float64(ScreenHeight-MiniSize)-100)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -62,25 +60,41 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func NewGame() *Game {
 	game := Game{
-		miniGameMap: make(map[rune]*MiniGame, 4),
-		startTime:   time.Now(),
+		miniGameMap: map[rune]MiniGame{
+			'w': &model.TicTacToeGame{
+				BaseMiniGame: model.BaseMiniGame{
+					AlarmPos:  25,
+					MiniImage: ebiten.NewImage(MiniSize, MiniSize),
+				},
+			},
+			'a': &model.CopyNumber{
+				BaseMiniGame: model.BaseMiniGame{
+					AlarmPos:  125,
+					MiniImage: ebiten.NewImage(MiniSize, MiniSize),
+				},
+			},
+			's': &model.SortList{
+				BaseMiniGame: model.BaseMiniGame{
+					AlarmPos:  600,
+					MiniImage: ebiten.NewImage(MiniSize, MiniSize),
+				},
+			},
+			'd': &model.UnscrabbleWord{
+				BaseMiniGame: model.BaseMiniGame{
+					AlarmPos:  700,
+					MiniImage: ebiten.NewImage(MiniSize, MiniSize),
+				},
+			},
+		},
 	}
-	game.miniGameMap['w'] = &MiniGame{
-		alarmPos:  25,
-		miniImage: ebiten.NewImage(miniSize, miniSize),
-	}
-	game.miniGameMap['a'] = &MiniGame{
-		alarmPos:  125,
-		miniImage: ebiten.NewImage(miniSize, miniSize),
-	}
-	game.miniGameMap['s'] = &MiniGame{
-		alarmPos:  600,
-		miniImage: ebiten.NewImage(miniSize, miniSize),
-	}
-	game.miniGameMap['d'] = &MiniGame{
-		alarmPos:  700,
-		miniImage: ebiten.NewImage(miniSize, miniSize),
-	}
+	game.currMini = 'w'
+
+	file, _ := os.Open("sprites/background.png")
+	defer file.Close()
+	img, _, _ := image.Decode(file)
+	game.backImage = ebiten.NewImageFromImage(img)
+
+	model.Init()
 
 	return &game
 }
