@@ -1,12 +1,18 @@
 package model
 
 import (
+	"bytes"
 	"image/color"
 	_ "image/png"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
+
+var mplusFaceSource *text.GoTextFaceSource
 
 type MiniGame interface {
 	UpdateGame()
@@ -18,6 +24,14 @@ type MiniGame interface {
 type BaseMiniGame struct {
 	AlarmPos  float32
 	MiniImage *ebiten.Image
+}
+
+func Init() {
+	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mplusFaceSource = s
 }
 
 func (game *BaseMiniGame) GetMiniImage() *ebiten.Image {
@@ -32,24 +46,4 @@ func (game *BaseMiniGame) DisplayScreen(screen *ebiten.Image, transX float64, tr
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(transX, transY)
 	screen.DrawImage(game.MiniImage, op)
-}
-
-func (game *BaseMiniGame) UpdateGame() {
-	// just default implementation fix later
-}
-
-type TicTacToeGame struct {
-	BaseMiniGame
-}
-
-type SortList struct {
-	BaseMiniGame
-}
-
-type CopyNumber struct {
-	BaseMiniGame
-}
-
-type UnscrabbleWord struct {
-	BaseMiniGame
 }

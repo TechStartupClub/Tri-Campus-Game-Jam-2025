@@ -94,5 +94,7 @@ func NewGame() *Game {
 	img, _, _ := image.Decode(file)
 	game.backImage = ebiten.NewImageFromImage(img)
 
+	model.Init()
+
 	return &game
 }
