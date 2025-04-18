@@ -97,7 +97,7 @@ func NewGame() *Game {
 					Active:    false,
 				},
 			},
-			's': &model.SortList{
+			's': &model.FurryRun{
 				BaseMiniGame: model.BaseMiniGame{
 					AlarmPos:  600,
 					MiniImage: ebiten.NewImage(MiniSize, MiniSize),

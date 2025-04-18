@@ -1,5 +1,5 @@
 package model
 
-type SortList struct {
+type FurryRun struct {
 	BaseMiniGame
 }
