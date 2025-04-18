@@ -31,10 +31,12 @@ func (g *Game) Update() error {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		g.currMini = 'w'
+		g.miniGameMap['w'].SetActive()
 	} else if ebiten.IsKeyPressed(ebiten.KeyA) {
 		g.currMini = 'a'
 	} else if ebiten.IsKeyPressed(ebiten.KeyS) {
 		g.currMini = 's'
+		g.miniGameMap['s'].SetActive()
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
 		g.currMini = 'd'
 	}
@@ -113,6 +115,8 @@ func NewGame() *Game {
 			},
 		},
 	}
+
+	game.miniGameMap['s'].Init()
 
 	file, _ := os.Open("sprites/background.png")
 	defer file.Close()

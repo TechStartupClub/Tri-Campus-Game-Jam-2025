@@ -10,9 +10,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
+const (
+	ScreenWidth  = 800
+	ScreenHeight = 700
+	MiniSize     = 400
+)
+
 var mplusFaceSource *text.GoTextFaceSource
 
 type MiniGame interface {
+	Init()
 	UpdateGame()
 	UpdateScreen()
 	SetActive()
@@ -35,6 +42,8 @@ func Init() {
 	}
 	mplusFaceSource = s
 }
+
+func (game *BaseMiniGame) Init() {}
 
 // should update game state
 func (game *BaseMiniGame) UpdateGame() {
